@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block summary_active %} {{summary_active}} {% endblock %}
+
+{% block main_content %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th scope="col">stock</th>
+                <th scope="col">shares bought</th>
+                <th scope="col">shares sold</th>
+            </tr>
+        </thead>
+        <p class="mb-0" style="color: red;">{{session.msg}}</p>
+        <tbody>
+            {% for summary in summaries %}
+            <tr>
+                <td><a href="/stocks/{{summary.stock}}">{{summary.stock}}</a></td>
+                <td>{{summary.buy_shares}}</td>
+                <td>{{summary.sell_shares}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

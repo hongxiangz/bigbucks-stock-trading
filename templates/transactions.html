@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block transactions_active %} {{transactions_active}} {% endblock %}
+
+{% block main_content %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                {% if session.user.role == 'admin' %}
+                <th scope="col">user</th>
+                {% endif %}
+                <th scope="col">stock</th>
+                <th scope="col">date</th>
+                <th scope="col">type</th>
+                <th scope="col">shares</th>
+                <th scope="col">price</th>
+                <th scope="col">cost</th>
+            </tr>
+        </thead>
+        <p class="mb-0" style="color: red;">{{session.msg}}</p>
+        <tbody>
+            {% for transaction in transactions %}
+            <tr>
+                {% if session.user.role == 'admin' %}
+                <td>{{transaction.username}}</td>
+                {% endif %}
+                <td><a href="/stocks/{{transaction.stock}}">{{transaction.stock}}</a></td>
+                <td>{{transaction.date}}</td>
+                <td>{{transaction.type}}</td>
+                <td>{{transaction.shares}}</td>
+                <td>{{transaction.price}}</td>
+                <td>{{transaction.cost}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

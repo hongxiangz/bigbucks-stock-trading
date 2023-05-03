@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block holdings_active %} {{holdings_active}} {% endblock %}
+
+{% block main_content %}
+
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                {% if session.user.role == 'admin' %}
+                <th scope="col">user</th>
+                {% endif %}
+                <th scope="col">stock</th>
+                <th scope="col">shares</th>
+                <th scope="col">price</th>
+                <th scope="col">cost</th>
+                <th scope="col">date</th>
+                <th scope="col">action</th>
+            </tr>
+        </thead>
+        <p class="mb-0" style="color: red;">{{session.msg}}</p>
+        <tbody>
+            {% for holding in holdings %}
+            <tr>
+                {% if session.user.role == 'admin' %}
+                <th scope="col">{{holding.username}}</th>
+                {% endif %}
+                <td><a href="/stocks/{{holding.stock}}">{{holding.stock}}</a></td>
+                <td>{{holding.shares}}</td>
+                <td>{{holding.price}}</td>
+                <td>{{holding.cost}}</td>
+                <td>{{holding.date}}</td>
+                <td><a href="/holdings/{{holding.stock}}">See History</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

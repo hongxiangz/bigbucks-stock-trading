@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+
+{% block profile_active %} active {% endblock %}
+
+{% block style %}
+<style>
+  .form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+  }
+</style>
+{% endblock %}
+
+{% block main_content %}
+<div>
+  <h2>Select date range</h2>
+  <form action="/stocks/{{stock}}" method="post">
+    Start date: <input type="date" name="start_date" value="{{start_date}}" required />&nbsp;&nbsp;
+    End date: <input type="date" name="end_date" value="{{end_date}}" required />&nbsp;&nbsp;
+    <input type="submit" value="Submit" />
+  </form>
+</div>
+
+<hr>
+<div id="price_chart" style="width: 720px;height:500px;"></div>
+<script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('price_chart'));
+  var option = {
+    title: {
+      text: 'The price of {{stock}}'
+    },
+    tooltip: {},
+    legend: {
+      data: ['price']
+    },
+    xAxis: {
+      data: [{% for stock in stocks %}
+          '{{ stock.date }}',
+          {% endfor %}]
+    },
+  yAxis: { },
+  series: [
+    {
+      name: 'price',
+      type: 'line',
+      data: [
+        {% for stock in stocks %}
+          {{ stock.price }},
+    {% endfor %}
+  ]
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+</script>
+
+
+<hr>
+<div id="return_chart" style="width: 720px;height:500px;"></div>
+<script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('return_chart'));
+  var option = {
+    title: {
+      text: 'Simple return of {{stock}}'
+    },
+    tooltip: {},
+    xAxis: {
+      data: [{% for return_ in returns %}
+          '{{ return_.date }}',
+          {% endfor %}]
+    },
+  yAxis: { },
+  series: [
+    {
+      name: 'price',
+      type: 'scatter',
+      data: [
+        {% for return_ in returns %}
+          {{ return_.rate }},
+    {% endfor %}
+  ]
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+</script>
+
+<hr>
+<div id="compate_spy" style="width: 720px;height:500px;"></div>
+<script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('compate_spy'));
+  var option = {
+    title: {
+      text: 'Daily percentage change in price for SPX and {{stock}}'
+    },
+    tooltip: {},
+    legend: {
+      data: ['{{stock}}', 'SPY'],
+      orient: 'vertical',
+      right: '5%',
+      top: '5%',
+      align: 'auto' 
+    },
+    xAxis: {
+      data: [{% for date in dates %}
+          '{{ date }}',
+          {% endfor %}]
+    },
+  yAxis: { },
+  series: [
+      {
+        name: '{{stock}}',
+        type: 'line',
+        data: [
+          {% for item in return_compares %}
+            {{ item.stock }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'SPY',
+        type: 'line',
+        data: [
+          {% for item in return_compares %}
+            {{ item.spy }},
+          {% endfor %}
+        ]
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+</script>
+
+<hr>
+<div id="compate_spy_acc" style="width: 720px;height:500px;"></div>
+<script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('compate_spy_acc'));
+  var option = {
+    title: {
+      text: '{{stock}} and S&P 500 cumulative returns'
+    },
+    tooltip: {},
+    legend: {
+      data: ['{{stock}}', 'SPY'],
+      orient: 'vertical',
+      right: '5%',
+      top: '5%',
+      align: 'auto' 
+    },
+    xAxis: {
+      data: [{% for date in dates %}
+          '{{ date }}',
+          {% endfor %}]
+    },
+  yAxis: { },
+  series: [
+      {
+        name: '{{stock}}',
+        type: 'line',
+        data: [
+          {% for item in acc_compares %}
+            {{ item.stock }},
+          {% endfor %}
+        ]
+      },
+      {
+        name: 'SPY',
+        type: 'line',
+        data: [
+          {% for item in acc_compares %}
+            {{ item.spy }},
+          {% endfor %}
+        ]
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+</script>
+
+<hr>
+<div id="return_chart2" style="width: 720px;height:720px;"></div>
+<script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('return_chart2'));
+  var option = {
+    title: {
+      text: 'Return of {{stock}}'
+    },
+    tooltip: {},
+    xAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: function(value) {
+          return (value * 100).toFixed(2) + '%';
+        }
+      } ,
+      min: -0.06,
+      max:0.06,
+      name: 'Simple return(-1)',
+      nameLocation: 'middle', 
+      nameGap: 20,
+    },
+  yAxis: {
+    type: 'value',
+    axisLabel: {
+      formatter: function(value) {
+        return (value * 100).toFixed(2) + '%';
+      }
+    },
+    min: -0.06,
+    max:0.06,
+    name: 'Simple return',
+    nameLocation: 'middle',
+    nameGap: 25,
+    axisLabel: {
+      show: true,
+      color: '#333',
+      fontSize: 12,
+      fontWeight: 'bold'
+    }
+  },
+  grid: {
+    show: true,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    backgroundColor: '#f8f8f8',
+    left: '10%',  
+    top: '10%', 
+    right: '10%',
+    bottom: '10%'
+  },
+  series: [
+    {
+      name: 'return',
+      type: 'scatter',
+      data: [
+        {% for return_ in return_pairs %}
+          [{{ return_.rate_2 }}, {{ return_.rate }}],
+        {% endfor %}
+      ]
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+</script>
+
+<hr>
+<div id="return_reg" style="width: 720px;height:720px;"></div>
+<script type="text/javascript">
+  var data = [
+        {% for return_ in return_compares %}
+          [{{ return_.spy }}, {{ return_.stock }}],
+        {% endfor %}
+      ];
+  
+  var linreg = ss.linearRegression(data);
+  var slope = linreg.m;
+  var intercept = linreg.b;
+
+  var myChart = echarts.init(document.getElementById('return_reg'));
+  var option = {
+    title: {
+      text: 'Scatter graph of {{stock}} return versus market return, withregression line'
+    },
+    tooltip: {},
+    xAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: function(value) {
+          return (value * 100).toFixed(2) + '%';
+        }
+      } ,
+      min: -0.06,
+      max:0.06,
+      name: 'SPY',
+      nameLocation: 'middle', 
+      nameGap: 20,
+    },
+  yAxis: {
+    type: 'value',
+    axisLabel: {
+      formatter: function(value) {
+        return (value * 100).toFixed(2) + '%';
+      }
+    },
+    min: -0.06,
+    max:0.06,
+    name: '{{stock}}',
+    nameLocation: 'middle',
+    nameGap: 25,
+    axisLabel: {
+      show: true,
+      color: '#333',
+      fontSize: 12,
+      fontWeight: 'bold'
+    }
+  },
+  grid: {
+    show: true,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    backgroundColor: '#f8f8f8',
+    left: '10%',  
+    top: '10%', 
+    right: '10%',
+    bottom: '10%'
+  },
+  series: [
+      {
+      name: 'return',
+      type: 'scatter',
+      data: data,
+      },
+      {
+        type: 'line',
+        data: [
+            [-5, slope * (-5) + intercept],
+          [10, slope * 10 + intercept]
+        ],
+        // 控制拟合直线的长度
+        lineStyle: {
+          width: 3,
+          opacity: 0.7
+        },
+        // 控制拟合直线的颜色
+        itemStyle: {
+          color: '#FFA500'
+        }
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+</script>
+
+<hr>
+<div id="histogram_chart" style="width: 720px;height:500px;"></div>
+<script type="text/javascript">
+  var myChart = echarts.init(document.getElementById('histogram_chart'));
+  var option = {
+    title: {
+      text: 'Histogram of {{stock}} return'
+    },
+    xAxis: {
+      type: 'category',
+      data: [
+        {% for item in histogram %}
+        '{{item.range_left}}',
+        {% endfor %}
+      ]
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: [
+        {% for item in histogram %}
+        '{{item.count}}',
+        {% endfor %}
+        ],
+        type: 'bar'
+      }
+    ]
+  };
+
+  myChart.setOption(option);
+</script>
+
+{% endblock %}

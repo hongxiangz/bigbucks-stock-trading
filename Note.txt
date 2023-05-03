@@ -1,0 +1,14 @@
+# mysql 安装完后设置root密码
+sudo apt install mysql-server mysql-client
+
+sudo mysql_secure_installation
+sudo mysql
+
+create database stock default character set utf8 collate utf8_bin;
+
+CREATE USER 'stock'@'localhost' IDENTIFIED with mysql_native_password BY 'stock2023Zc!';
+
+GRANT ALL PRIVILEGES on *.* to 'stock'@'localhost';
+
+FLUSH PRIVILEGES;
+

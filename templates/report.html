@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block report_active %} active {% endblock %}
+
+{% block style %}
+<style>
+  .form-signin {
+    width: 100%;
+    max-width: 330px;
+    padding: 15px;
+  }
+</style>
+{% endblock %}
+
+{% block main_content %}
+<div>
+  <h2>Generate Report</h2>
+  <form action="/report" method="post">
+    Start date: <input type="date" name="start_date" value="{{start_date}}" required />&nbsp;&nbsp;
+    End date: <input type="date" name="end_date" value="{{end_date}}" required />&nbsp;&nbsp;
+    <input type="submit" value="Submit" />
+  </form>
+</div>
+
+<hr>
+<div id="price_chart" style="width:800px;height:600px;"></div>
+<script type="text/javascript">
+  var data = [
+    {% for item in result.points %}
+    [ {{item[1]|round(5)}}, {{item[0]|round(5)}}, {{item[2]|round(5)}} ],
+    {% endfor %}
+  ];
+
+
+  var option = {
+    xAxis: {
+      type: 'value',
+      scale: true,
+      name: 'Volatility',
+      nameLocation: 'center'
+
+    },
+    yAxis: {
+      type: 'value',
+      scale: true,
+      name: 'Rate of Return',
+      nameLocation: 'middle',
+  nameGap: 40,
+  nameRotate: 90,
+  nameTextStyle: {
+    verticalAlign: 'middle',
+    textAlign: 'center'
+  },
+  axisLabel: {
+    rotate: -90,
+    verticalAlign: 'middle',
+    textAlign: 'center'
+  }
+    },
+    series: [{
+      type: 'scatter',
+      symbolSize: 5,
+      label: {
+        emphasis: {
+          show: true,
+          formatter: function (param) {
+            return param.data[2];
+          },
+          position: 'top'
+        }
+      },
+      itemStyle: {
+        normal: {
+          opacity: 0.8,
+          color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [{
+            offset: 0,
+            color: '#FF4500'
+          }, {
+            offset: 1,
+            color: '#32CD32'
+          }])
+        }
+      },
+      data: data
+    }, {
+        type: 'scatter',
+        symbol: 'circle',
+        symbolSize: 10,
+        itemStyle: {
+            normal: {
+                color: ['#FF4500']
+            }
+        },data: [
+            [{{result.port_sigma}},{{result.port_ret}},{{result.port_s}}]
+        ]
+    }],
+    visualMap: {
+      min: {{result.min_sharp|round(5)}},
+      max: {{result.max_sharp|round(5)}},
+      calculable: true,
+      orient: 'vertical',
+      right: 20,
+      top: 'center',
+      inRange: {
+        color: ['#FF4500', '#32CD32'],
+        min: {{result.min_sharp|round(5)}},
+        max: {{result.max_sharp|round(5)}},
+      }
+    },
+    graphic: {
+      elements: [{
+        type: 'rect',
+        right: 0,
+        top: 'center',
+        height: 600,
+        width: 10,
+        // 使用渐变色
+        style: {
+          fill: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+            offset: 0,
+            color: '#FF4500'
+          }, {
+            offset: 1,
+            color: '#32CD32'
+          }]),
+          stroke: '#fff'
+        }
+      }]
+    },
+  };
+
+  var myChart = echarts.init(document.getElementById('price_chart'));
+  myChart.setOption(option);
+</script>
+
+{% endblock %}

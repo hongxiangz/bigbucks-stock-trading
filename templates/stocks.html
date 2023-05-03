@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block stocks_active %} {{stocks_active}} {% endblock %}
+
+{% block main_content %}
+<div class="table-responsive">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th scope="col">name</th>
+                <th scope="col">price</th>
+                <th scope="col">date</th>
+                {% if session.user.role == 'user' %}
+                <th scope="col">action</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <p class="mb-0" style="color: red;">{{session.msg}}</p>
+        <tbody>
+            {% for stock in stocks %}
+            <tr>
+                <td><a href="/stocks/{{stock.name}}">{{stock.name}}</a></td>
+                <td>{{stock.price}}</td>
+                <td>{{stock.date}}</td>
+                {% if session.user.role == 'user' %}
+                <td>
+                    {% if hide_buy %}
+                    {% else %}
+                    <form action="/trade" method="post">
+                        <input type="number" name="shares" value="100" required/>
+                        <input type="hidden" name="stock" value="{{stock.name}}" />
+                        <input type="hidden" name="date" value="{{stock.date}}" />
+                        <input type="hidden" name="type" value="Buy" />
+                        <input type="hidden" name="price" value="{{stock.price}}" />
+                        <input type="submit" value="Buy"/>
+                    </form>
+                    {% endif %}
+                </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
