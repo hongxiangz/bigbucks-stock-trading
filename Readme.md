@@ -1,1 +1,1 @@
-###THis is a stock trading platform ^^
+###This is a stock trading platform ^^
